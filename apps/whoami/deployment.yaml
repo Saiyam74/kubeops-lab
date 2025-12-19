@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami
+  namespace: apps
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: whoami
+
+  template:
+    metadata:
+      labels:
+        app: whoami
+    spec:
+      terminationGracePeriodSeconds: 20
+
+      containers:
+      - name: whoami
+        image: traefik/whoami:v1.11
+        ports:
+        - containerPort: 80
+
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 2
+          periodSeconds: 5
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        lifecycle:
+          preStop:
+            exec:
+              command: ["sh", "-c", "sleep 15"]

@@ -1,0 +1,31 @@
+name: CI - Helm checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  helm-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm lint
+        run: helm lint ./charts/whoami
+
+      - name: Helm template
+        run: helm template whoami ./charts/whoami --namespace apps > /tmp/rendered.yaml
+
+      - name: Basic kube manifest sanity check
+        run: |
+          grep -q "kind: Deployment" /tmp/rendered.yaml
+          grep -q "kind: Service" /tmp/rendered.yaml
+          grep -q "kind: Ingress" /tmp/rendered.yaml

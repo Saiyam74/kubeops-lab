@@ -1,0 +1,35 @@
+name: CD - Deploy to local Kind (self-hosted)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show tools
+        shell: pwsh
+        run: |
+          kubectl version --client
+          helm version
+          kind version
+          docker version
+
+      - name: Ensure kube context is kind
+        shell: pwsh
+        run: |
+          kubectl config current-context
+          kubectl get nodes
+
+      - name: Deploy/Upgrade via Helm
+        shell: pwsh
+        run: |
+          helm upgrade --install whoami .\charts\whoami -n apps --create-namespace
+          kubectl rollout status deploy/whoami -n apps
+          kubectl get pods -n apps
+          kubectl get ingress -n apps

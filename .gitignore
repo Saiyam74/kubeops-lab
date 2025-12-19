@@ -1,0 +1,24 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Python (if ever added)
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+*.env
+*.pem
+*.key
+
+# Helm / charts
+**/charts/**/charts/
+**/charts/**/tmp/
+
+# Local cluster / kube files (if you have any)
+kubeconfig*
+*.log
